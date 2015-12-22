@@ -1912,23 +1912,11 @@ class UnitOfWork implements PropertyChangedListener
         $this->cascadeMerge($entity, $managedCopy, $visited);
 
         // Restore previous state (where the given entity was previously managed)
-        if (!$isKnown) {
+        if ($managedCopy !== $entity) {
             $this->forgetEntity($entity);
         }
 
         return $managedCopy;
-    }
-
-    /**
-     * Tests if an entity is a non initialized proxy class
-     *
-     * @param $entity
-     *
-     * @return bool
-     */
-    private function isNotInitializedProxy($entity)
-    {
-        return $entity instanceof Proxy && !$entity->__isInitialized();
     }
 
     /**
@@ -1954,26 +1942,6 @@ class UnitOfWork implements PropertyChangedListener
             $this->entityStates[$oid],
             $this->originalEntityData[$oid]
         );
-    }
-
-    /**
-     * Check if an entity is known, i.e. it's object identifier is used by UOW
-     *
-     * @param object $entity
-     *
-     * @return bool
-     */
-    private function isKnowEntity($entity)
-    {
-        $oid = spl_object_hash($entity);
-
-        return $this->isInIdentityMap($entity)
-        || isset($this->entityInsertions[$oid])
-        || isset($this->entityUpdates[$oid])
-        || isset($this->entityDeletions[$oid])
-        || isset($this->entityIdentifiers[$oid])
-        || isset($this->entityStates[$oid])
-        || isset($this->originalEntityData[$oid]);
     }
 
     /**
